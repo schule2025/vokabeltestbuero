@@ -3,90 +3,166 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vokabeltrainer Büro · A1 (mit Artikeln)</title>
+<title>Vokabeltrainer Büro · A1 (mehrsprachig)</title>
 <style>
-  body{margin:0;font-family:sans-serif;background:#0b1220;color:#eee}
+  :root{ --bg:#0b1220; --card:#0f172a; --ink:#e5e7eb; --muted:#94a3b8; --accent:#22c55e; --accent2:#3b82f6; --danger:#ef4444; }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,sans-serif}
   .wrap{max-width:720px;margin:0 auto;padding:16px}
-  .card{background:#1e293b;padding:16px;border-radius:12px}
-  .choices{display:grid;gap:8px;margin-top:10px}
+  header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{font-size:1.1rem;margin:0}
+  .card{background:var(--card);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.25);padding:14px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  select,button,input[type=text]{background:#0b132b;color:var(--ink);border:1px solid #1f2937;border-radius:12px;padding:10px 12px}
+  button{cursor:pointer;font-weight:600}
+  .pill{border-radius:999px;padding:6px 10px;background:#0b132b;border:1px solid #1f2937;color:var(--muted)}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{border-radius:999px;padding:8px 12px;border:1px solid #334155;background:#0b132b;color:var(--ink)}
+  .tab.active{background:var(--accent2);border-color:var(--accent2);color:white}
+  .panel{margin-top:12px}
+  .big{font-size:1.6rem}
+  .hint{color:var(--muted);font-size:.95rem}
+  .btn{background:var(--accent);border:0}
+  .btn.secondary{background:var(--accent2)}
+  .btn.ghost{background:#0b132b}
+  .btn.danger{background:var(--danger)}
+  .stack{display:grid;gap:10px}
+  .flex{display:flex;gap:8px;flex-wrap:wrap}
+  .grid{display:grid;gap:10px}
+  .grid-2{grid-template-columns:1fr 1fr}
+  .center{text-align:center}
+  .rtl{direction:rtl}
+  .box{border:1px dashed #334155;border-radius:12px;padding:12px}
+  .kpi{display:flex;gap:8px;flex-wrap:wrap}
+  .kpi .pill{background:#0b132b}
+  .ok{color:#22c55e}
+  .bad{color:#ef4444}
+  .divider{height:1px;background:#1f2937;margin:8px 0}
+  .input{width:100%;}
+  .choices{display:grid;gap:8px}
   .choice{padding:12px;border:1px solid #334155;border-radius:12px;background:#0b132b}
   .choice.correct{outline:2px solid #22c55e}
   .choice.wrong{outline:2px solid #ef4444}
-  .btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer}
-  .ok{color:#22c55e}
-  .bad{color:#ef4444}
+  .footer{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  details{background:#0b132b;border:1px solid #334155;border-radius:12px;padding:10px}
+  details summary{cursor:pointer}
+  .small{font-size:.9rem}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Vokabeltrainer Büro (mit Artikeln)</h1>
-  <label>Sprache:
-    <select id="lang">
-      <option value="ru">Русский</option>
-      <option value="tr">Türkçe</option>
-      <option value="fa">فارسی</option>
-      <option value="ar">العربية</option>
-      <option value="fr">Français</option>
-    </select>
-  </label>
-  <div>
-    <button class="btn" data-mode="learn">Lernen</button>
-    <button class="btn" data-mode="test">Testen</button>
+  <div class="wrap"> 
+    <header>
+      <h1>Vokabeltrainer Büro · A1</h1>
+      <div class="row">
+        <label class="pill">Sprache:
+          <select id="lang">
+            <option value="ru">Русский</option>
+            <option value="tr">Türkçe</option>
+            <option value="fa">فارسی</option>
+            <option value="ar">العربية</option>
+            <option value="fr">Français</option>
+          </select>
+        </label>
+        <div class="tabs" id="modes">
+          <button class="tab active" data-mode="learn">Lernen</button>
+          <button class="tab" data-mode="test">Testen</button>
+          <button class="tab" data-mode="phrases">Phrasen</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="kpi">
+        <span class="pill" id="progress">Fortschritt: 0 richtig · 0 falsch</span>
+        <span class="pill" id="streak">Streak: 0</span>
+      </div>
+      <div id="panel" class="panel stack"></div>
+      <div class="footer">
+        <button class="btn secondary" id="btnPrev">◀ Zurück</button>
+        <button class="btn" id="btnNext">Weiter ▶</button>
+        <button class="btn ghost" id="btnTip">Tipp</button>
+        <button class="btn danger" id="btnReset">Fortschritt löschen</button>
+      </div>
+    </section>
+
+    <p class="hint small">Hinweis: Alle Daten bleiben lokal auf diesem Gerät (localStorage). Für Arabisch/Farsi wird die Anzeige in RTL umgestellt.</p>
+
+    <details>
+      <summary>Kurzanleitung (A1)</summary>
+      <p>Wähle deine Sprache. Lerne die Wörter (Lernen). Teste dich (Testen). Übe Sätze (Phrasen). Schreibe einfache Antworten. Umlaute wie ä/ö/ü kannst du als ae/oe/ue schreiben.</p>
+    </details>
   </div>
-  <div class="card" id="panel"></div>
-</div>
 
 <script>
+/* ------- Daten (Vokabeln + Phrasen) ------- */
 const LEXICON = [
-  {de:"der Computer", ru:"компьютер", tr:"bilgisayar", fa:"رایانه", ar:"كمبيوتر", fr:"ordinateur"},
-  {de:"der Drucker", ru:"принтер", tr:"yazıcı", fa:"چاپگر", ar:"طابعة", fr:"imprimante"},
-  {de:"das Telefon", ru:"телефон", tr:"telefon", fa:"تلفن", ar:"هاتف", fr:"téléphone"},
-  {de:"der Chef", ru:"начальник", tr:"şef|müdür", fa:"رئیس", ar:"مدير", fr:"chef"},
-  {de:"der Kunde", ru:"клиент", tr:"müşteri", fa:"مشتری", ar:"زبون", fr:"client"},
-  {de:"der Kollege", ru:"коллега", tr:"meslektaş", fa:"همکار", ar:"زميل", fr:"collègue"},
-  {de:"die E-Mail", ru:"электронное письмо", tr:"e-posta", fa:"ایمیل", ar:"بريد إلكتروني", fr:"e-mail"},
-  {de:"die Pause", ru:"перерыв", tr:"mola", fa:"زمان استراحت", ar:"استراحة", fr:"pause"},
-  {de:"das Problem", ru:"проблема", tr:"sorun", fa:"مشکل", ar:"مشكلة", fr:"problème"},
-  {de:"die Lösung", ru:"решение", tr:"çözüm", fa:"راه‌حل", ar:"حلّ", fr:"solution"},
-  {de:"der Termin", ru:"встреча", tr:"randevu", fa:"وقت ملاقات", ar:"موعد", fr:"rendez-vous"},
-  {de:"der Bericht", ru:"отчёт", tr:"rapor", fa:"گزارش", ar:"تقرير", fr:"rapport"},
-  {de:"die Tastatur", ru:"клавиатура", tr:"klavye", fa:"صفحه‌کلید", ar:"لوحة مفاتيح", fr:"clavier"},
-  {de:"die Maus", ru:"мышь", tr:"fare", fa:"ماوس", ar:"فأرة", fr:"souris"},
-  {de:"der Bildschirm", ru:"экран", tr:"ekran", fa:"صفحه‌نمایش", ar:"شاشة", fr:"écran"},
-  {de:"die Rechnung", ru:"счёт", tr:"fatura", fa:"صورت‌حساب", ar:"فاتورة", fr:"facture"},
-  {de:"das Formular", ru:"форма", tr:"form", fa:"فرم", ar:"نموذج", fr:"formulaire"},
-  {de:"das Meeting", ru:"встреча", tr:"toplantı", fa:"جلسه", ar:"اجتماع", fr:"réunion"},
-  {de:"die Hilfe", ru:"помощь", tr:"yardım", fa:"کمک", ar:"مساعدة", fr:"aide"},
-  {de:"die Aufgabe", ru:"задание", tr:"görev", fa:"وظیفه", ar:"مهمة", fr:"tâche"},
-  {de:"der Ordner", ru:"папка", tr:"klasör", fa:"زونکن", ar:"مجلد", fr:"classeur"},
-  {de:"das Büro", ru:"офис", tr:"ofis", fa:"اداره", ar:"مكتب", fr:"bureau"},
-  {de:"der Tisch", ru:"стол", tr:"masa", fa:"میز", ar:"طاولة", fr:"table"},
-  {de:"der Stuhl", ru:"стул", tr:"sandalye", fa:"صندلی", ar:"كرسي", fr:"chaise"}
+  {de:"Computer",ru:"компьютер",tr:"bilgisayar",fa:"رایانه",ar:"كمبيوتر",fr:"ordinateur",examples:{de:"Der Computer ist langsam."}},
+  {de:"Drucker",ru:"принтер",tr:"yazıcı",fa:"چاپگر",ar:"طابعة",fr:"imprimante",examples:{de:"Der Drucker geht nicht."}},
+  {de:"Telefon",ru:"телефон",tr:"telefon",fa:"تلفن",ar:"هاتف",fr:"téléphone",examples:{de:"Der Kollege ruft am Telefon."}},
+  {de:"Chef",ru:"начальник",tr:"şef|müdür",fa:"رئیس",ar:"مدير|مديرة",fr:"chef",examples:{de:"Der Chef gibt eine Aufgabe."}},
+  {de:"Kunde",ru:"клиент",tr:"müşteri",fa:"مشتری",ar:"عميل|زبون",fr:"client",examples:{de:"Der Kunde hat ein Problem."}},
+  {de:"Kollege",ru:"коллега",tr:"meslektaş",fa:"همکار",ar:"زميل",fr:"collègue",examples:{de:"Der Kollege hilft."}},
+  {de:"E-Mail",ru:"электронное письмо",tr:"e-posta",fa:"ایمیل",ar:"بريد إلكتروني",fr:"e-mail",examples:{de:"Ich schreibe eine E-Mail."}},
+  {de:"Pause",ru:"перерыв",tr:"mola",fa:"زمان استراحت",ar:"استراحة",fr:"pause",examples:{de:"Wir machen Pause."}},
+  {de:"Problem",ru:"проблема",tr:"sorun",fa:"مشکل",ar:"مشكلة",fr:"problème",examples:{de:"Ich habe ein Problem."}},
+  {de:"Lösung",ru:"решение",tr:"çözüm",fa:"راه‌حل",ar:"حلّ",fr:"solution",examples:{de:"Die Lösung ist einfach."}},
+  {de:"Termin",ru:"встреча/приём",tr:"randevu",fa:"وقت ملاقات",ar:"موعد",fr:"rendez-vous",examples:{de:"Der Termin ist um 10 Uhr."}},
+  {de:"Bericht",ru:"отчёт",tr:"rapor",fa:"گزارش",ar:"تقرير",fr:"rapport",examples:{de:"Ich schreibe den Bericht."}},
+  {de:"Tastatur",ru:"клавиатура",tr:"klavye",fa:"صفحه‌کلید",ar:"لوحة مفاتيح",fr:"clavier",examples:{de:"Die Tastatur ist neu."}},
+  {de:"Maus",ru:"мышь",tr:"fare",fa:"ماوس|موشواره",ar:"فأرة",fr:"souris",examples:{de:"Die Maus funktioniert."}},
+  {de:"Bildschirm",ru:"экран",tr:"ekran",fa:"صفحه‌نمایش",ar:"شاشة",fr:"écran",examples:{de:"Der Bildschirm ist schwarz."}},
+  {de:"Rechnung",ru:"счёт",tr:"fatura",fa:"صورت‌حساب",ar:"فاتورة",fr:"facture",examples:{de:"Die Rechnung ist falsch."}},
+  {de:"Formular",ru:"бланк/форма",tr:"form",fa:"فرم",ar:"نموذج",fr:"formulaire",examples:{de:"Bitte füllen Sie das Formular aus."}},
+  {de:"Meeting",ru:"встреча/митинг",tr:"toplantı",fa:"جلسه",ar:"اجتماع",fr:"réunion",examples:{de:"Das Meeting ist heute."}},
+  {de:"Hilfe",ru:"помощь",tr:"yardım",fa:"کمک",ar:"مساعدة",fr:"aide",examples:{de:"Ich brauche Hilfe."}},
+  {de:"Aufgabe",ru:"задание",tr:"görev",fa:"وظیفه|کار",ar:"مهمة",fr:"tâche",examples:{de:"Bitte machen Sie diese Aufgabe."}},
+  {de:"Ordner",ru:"папка",tr:"klasör",fa:"زونکن|پوشه",ar:"مجلد",fr:"classeur",examples:{de:"Der Ordner ist blau."}},
+  {de:"Büro",ru:"офис",tr:"ofis",fa:"اداره|دفتر",ar:"مكتب",fr:"bureau",examples:{de:"Ich arbeite im Büro."}},
+  {de:"Tisch",ru:"стол",tr:"masa",fa:"میز",ar:"طاولة",fr:"table",examples:{de:"Der Tisch ist groß."}},
+  {de:"Stuhl",ru:"стул",tr:"sandalye",fa:"صندلی",ar:"كرسي",fr:"chaise",examples:{de:"Der Stuhl ist bequem."}}
+];
+const PHRASES = [
+  {de:"Guten Tag.",ru:"Здравствуйте.",tr:"İyi günler.",fa:"روز بخیر.",ar:"نهاركم سعيد.",fr:"Bonjour."},
+  {de:"Können Sie mir helfen?",ru:"Можете мне помочь?",tr:"Bana yardım eder misiniz?",fa:"می‌توانید به من کمک کنید؟",ar:"هل يمكنك مساعدتي؟",fr:"Pouvez-vous m’aider ?"},
+  {de:"Ich habe ein Problem.",ru:"У меня проблема.",tr:"Bir sorunum var.",fa:"من مشکلی دارم.",ar:"لديّ مشكلة.",fr:"J’ai un problème."},
+  {de:"Der Drucker geht nicht.",ru:"Принтер не работает.",tr:"Yazıcı çalışmıyor.",fa:"پرینتر کار نمی‌کند.",ar:"الطابعة لا تعمل.",fr:"L’imprimante ne marche pas."},
+  {de:"Der Bildschirm ist schwarz.",ru:"Экран чёрный.",tr:"Ekran siyah.",fa:"صفحه سیاه است.",ar:"الشاشة سوداء.",fr:"L’écran est noir."},
+  {de:"Ich schreibe eine E-Mail.",ru:"Я пишу электронное письмо.",tr:"Bir e-posta yazıyorum.",fa:"یک ایمیل می‌نویسم.",ar:"أكتب بريداً إلكترونياً.",fr:"J’écris un e-mail."},
+  {de:"Bitte machen Sie diese Aufgabe.",ru:"Пожалуйста, выполните это задание.",tr:"Lütfen bu görevi yapın.",fa:"لطفاً این وظیفه را انجام دهید.",ar:"من فضلك قم بهذه المهمة.",fr:"Veuillez faire cette tâche."},
+  {de:"Gehen wir essen?",ru:"Пойдём поедим?",tr:"Yemek yiyelim mi?",fa:"برویم غذا بخوریم؟",ar:"هل نذهب لتناول الطعام؟",fr:"On va manger ?"},
+  {de:"Guten Appetit!",ru:"Приятного аппетита!",tr:"Afiyet olsun!",fa:"نوش جان!",ar:"بالهناء والشفاء!",fr:"Bon appétit !"},
+  {de:"Auf Wiedersehen!",ru:"До свидания!",tr:"Hoşça kalın!",fa:"خداحافظ!",ar:"إلى اللقاء!",fr:"Au revoir !"}
 ];
 
-let mode="learn", idx=0, lang="ru";
+/* ------- Hilfsfunktionen ------- */
+const umlautMap = {"ä":"ae","ö":"oe","ü":"ue","Ä":"ae","Ö":"oe","Ü":"ue","ß":"ss"};
+function normalize(s){ if(!s) return ""; return s.toString().normalize('NFD').replace(/\p{Diacritic}+/gu,'').replace(/[ÄÖÜäöüß]/g,m=>umlautMap[m]||m).toLowerCase().trim(); }
+function isRTL(lang){ return lang==='ar' || lang==='fa'; }
 
-function render(){
-  const panel=document.getElementById("panel");
-  const item=LEXICON[idx];
-  if(mode==="learn"){
-    panel.innerHTML=`<h2>${item.de}</h2><p>${item[lang]}</p>`;
-  } else {
-    const opts=[item[lang],...LEXICON.filter(x=>x!==item).map(x=>x[lang]).slice(0,3)];
-    opts.sort(()=>Math.random()-0.5);
-    panel.innerHTML=`<h2>${item.de}</h2><div class="choices">${opts.map(o=>`<button class="choice">${o}</button>`).join("")}</div><div id="feedback"></div>`;
-    panel.querySelectorAll(".choice").forEach(btn=>{
-      btn.onclick=()=>{
-        if(btn.textContent===item[lang]){btn.classList.add("correct");document.getElementById("feedback").innerHTML="<p class='ok'>✔ Richtig!</p>";}
-        else{btn.classList.add("wrong");document.getElementById("feedback").innerHTML=`<p class='bad'>✘ Richtig: ${item[lang]}</p>`;}
-      };
-    });
-  }
-}
+/* ------- State ------- */
+let state={lang:'ru',mode:'learn',idx:0,order:[],correct:0,wrong:0,streak:0};
 
-document.getElementById("lang").onchange=e=>{lang=e.target.value;render();};
-document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;render();});
-render();
+/* ------- Rendering ------- */
+const panel=document.getElementById('panel'); const langSel=document.getElementById('lang'); const modeTabs=document.getElementById('modes');
+function applyRTL(){document.body.dir=isRTL(state.lang)?'rtl':'ltr';}
+function renderProgress(){document.getElementById('progress').textContent=`Fortschritt: ${state.correct} richtig · ${state.wrong} falsch`;document.getElementById('streak').textContent=`Streak: ${state.streak}`;}
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);}
+function newRound(){state.order=shuffle([...Array(LEXICON.length).keys()]);state.idx=0;render();}
+function currentItem(){return LEXICON[state.order[state.idx]];}
+
+function buildLearn(){const item=currentItem();panel.innerHTML=`<div class="box stack"><div class="center big">${item.de}</div><div class="divider"></div><div class="center">${item[state.lang]}</div><div class="hint center small">Beispiel: ${item.examples.de}</div></div>`;}
+
+function buildTest(){const item=currentItem();const opts=shuffle([item[state.lang],...shuffle(LEXICON.filter(x=>x!==item).map(x=>x[state.lang])).slice(0,3)]);panel.innerHTML=`<div class="stack"><div class="center big">${item.de}</div><div class="choices">${opts.map(o=>`<button class="choice" data-val="${o}">${o}</button>`).join('')}</div><div id="feedback" class="center"></div></div>`;panel.querySelectorAll('.choice').forEach(btn=>btn.onclick=()=>{if(normalize(btn.dataset.val)===normalize(item[state.lang])||item[state.lang].split('|').some(a=>normalize(a)===normalize(btn.dataset.val))){btn.classList.add('correct');panel.querySelector('#feedback').innerHTML='<p class="ok">✔ Richtig!</p>';state.correct++;state.streak++;}else{btn.classList.add('wrong');panel.querySelector('#feedback').innerHTML=`<p class="bad">✘ Richtig: ${item[state.lang]}</p>`;state.wrong++;state.streak=0;}renderProgress();});}
+
+function buildPhrases(){const p=PHRASES[state.idx%PHRASES.length];const opts=shuffle([p[state.lang],...shuffle(PHRASES.filter(x=>x!==p).map(x=>x[state.lang])).slice(0,3)]);panel.innerHTML=`<div class="stack"><div class="center big">${p.de}</div><div class="choices">${opts.map(o=>`<button class="choice" data-val="${o}">${o}</button>`).join('')}</div><div id="feedback" class="center"></div></div>`;panel.querySelectorAll('.choice').forEach(btn=>btn.onclick=()=>{if(normalize(btn.dataset.val)===normalize(p[state.lang])){btn.classList.add('correct');panel.querySelector('#feedback').innerHTML='<p class="ok">✔ Richtig!</p>';state.correct++;state.streak++;}else{btn.classList.add('wrong');panel.querySelector('#feedback').innerHTML=`<p class="bad">✘ Richtig: ${p[state.lang]}</p>`;state.wrong++;state.streak=0;}renderProgress();});}
+
+function render(){applyRTL();renderProgress();if(state.mode==='learn')buildLearn();else if(state.mode==='test')buildTest();else buildPhrases();}
+document.getElementById('btnPrev').onclick=()=>{state.idx=Math.max(0,state.idx-1);render();}
+document.getElementById('btnNext').onclick=()=>{state.idx=(state.idx+1)%state.order.length;render();}
+document.getElementById('btnTip').onclick=()=>{const item=currentItem();alert("Tipp: "+(item[state.lang].split('|')[0].slice(0,2))+"...");}
+document.getElementById('btnReset').onclick=()=>{state.correct=0;state.wrong=0;state.streak=0;renderProgress();}
+langSel.onchange=()=>{state.lang=langSel.value;render();}
+modeTabs.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{state.mode=t.dataset.mode;modeTabs.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));t.classList.add('active');render();});
+newRound();
 </script>
 </body>
 </html>
